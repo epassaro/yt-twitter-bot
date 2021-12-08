@@ -38,6 +38,5 @@ jobs:
               print("Error during authentication")
 
           followers = api.get_follower_ids()
-          following = api.get_friend_ids()
-
-          _ = [ api.create_friendship(user_id=f"{follower}") for follower in followers if follower not in following ]
+          following = api.get_friend_ids() + api.outgoing_friendships()
+          _ = [ api.create_friendship(user_id=f"{user}") for user in followers if user not in following] 
