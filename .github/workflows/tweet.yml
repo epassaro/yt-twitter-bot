@@ -26,6 +26,7 @@ jobs:
         run: |
           import tweepy
           from random import choice
+          from textwrap import wrap
           from pyyoutube import Api
 
           api = Api(api_key="${{ secrets.YT_API_KEY }}")
@@ -51,4 +52,14 @@ jobs:
               print("Error during authentication")
 
           tweet = api.update_status(f"{title} {url}")
-          reply = api.update_status(status=f"{descr}", in_reply_to_status_id=tweet.id, auto_populate_reply_metadata=True)
+
+          if len(descr) <= 280:
+            reply = api.update_status(status=f"{descr}", in_reply_to_status_id=tweet.id)
+
+          else:
+            strings = wrap(descr, 270)
+            n = len(strings)
+
+            reply = api.update_status(status=f"{strings[0]} ({1}/{n})", in_reply_to_status_id=tweet.id)
+            for i, string in enumerate(strings[1:]):
+              reply = api.update_status(status=f"{string} ({i+1}/{n})", in_reply_to_status_id=reply.id)
