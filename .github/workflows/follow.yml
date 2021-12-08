@@ -1,0 +1,43 @@
+name: follow
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: pip install tweepy
+
+      - name: Follow back
+        shell: python
+        run: |
+          import tweepy
+
+          auth = tweepy.OAuthHandler("${{ secrets.APP_API_KEY }}", "${{ secrets.APP_API_SECRET_KEY }}")
+          auth.set_access_token("${{ secrets.BOT_OAUTH_TOKEN }}", "${{ secrets.BOT_OAUTH_TOKEN_SECRET }}")
+          api = tweepy.API(auth)
+
+          try:
+              api.verify_credentials()
+              print("Authentication OK")
+
+          except:
+              print("Error during authentication")
+
+          followers = api.get_follower_ids()
+          following = api.get_friend_ids()
+
+          _ = [ api.create_friendship(user_id=f"{follower}") for follower in followers if follower not in following ]
