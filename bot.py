@@ -1,4 +1,3 @@
-import os
 from random import choice
 from textwrap import wrap
 
